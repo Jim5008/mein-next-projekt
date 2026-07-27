@@ -8,10 +8,14 @@ export default function Kontakt() {
   const [nachricht, setNachricht] = useState('');
   const [gesendet, setGesendet] = useState(false);
   const [fehler, setFehler] = useState('');
+  const [laedt, setLaedt] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  // async, weil wir jetzt auf eine Antwort vom Server warten müssen —
+  // das dauert (auch wenn nur Millisekunden) und darf die Seite nicht blockieren.
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Schnelle Client-seitige Prüfung bleibt für sofortiges Feedback im Browser.
     if (name === '' || email === '' || nachricht === '') {
       setFehler('Bitte alle Felder ausfüllen!');
       return;
@@ -23,7 +27,29 @@ export default function Kontakt() {
     }
 
     setFehler('');
-    setGesendet(true);
+    setLaedt(true);
+
+    try {
+      const response = await fetch('/api/kontakt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, nachricht }),
+      });
+
+      const ergebnis = await response.json();
+
+      if (!ergebnis.erfolg) {
+        setFehler(ergebnis.fehler || 'Etwas ist schiefgelaufen.');
+        return;
+      }
+
+      setGesendet(true);
+    } catch {
+      // Passiert z.B. wenn der Server nicht erreichbar ist (Internet weg, Server down).
+      setFehler('Verbindung fehlgeschlagen. Bitte versuch es später nochmal.');
+    } finally {
+      setLaedt(false);
+    }
   }
 
   return (
@@ -80,9 +106,10 @@ export default function Kontakt() {
             />
             <button
               type="submit"
-              className="bg-amber-500 text-white py-4 rounded-lg text-lg font-semibold hover:bg-amber-600 transition"
+              disabled={laedt}
+              className="bg-amber-500 text-white py-4 rounded-lg text-lg font-semibold hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Nachricht senden
+              {laedt ? 'Wird gesendet...' : 'Nachricht senden'}
             </button>
           </form>
         )}
