@@ -48,21 +48,30 @@ export default function Kontakt() {
                 {fehler}
               </div>
             )}
+            <label htmlFor="name" className="sr-only">Dein Name</label>
             <input
+              id="name"
+              name="name"
               type="text"
               placeholder="Dein Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-gray-800 text-white px-6 py-4 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
             />
+            <label htmlFor="email" className="sr-only">Deine E-Mail</label>
             <input
+              id="email"
+              name="email"
               type="email"
               placeholder="Deine E-Mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-gray-800 text-white px-6 py-4 rounded-lg outline-none focus:ring-2 focus:ring-amber-500"
             />
+            <label htmlFor="nachricht" className="sr-only">Deine Nachricht</label>
             <textarea
+              id="nachricht"
+              name="nachricht"
               placeholder="Deine Nachricht"
               value={nachricht}
               onChange={(e) => setNachricht(e.target.value)}
